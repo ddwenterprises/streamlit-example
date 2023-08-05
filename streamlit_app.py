@@ -22,7 +22,7 @@ def calculate_completion_date(start_date, calendar_days, winter_shutdown):
     completion_date -= timedelta(days=1)
 
 
-    return completion_date.strftime("%Y-%m-%d"), dict(days_per_month)
+    return completion_date.strftime("%B %d %Y"), dict(days_per_month)
 
 st.title("Contract Completion Date Calculator")
 
