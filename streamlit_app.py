@@ -1,38 +1,41 @@
-from collections import namedtuple
-import altair as alt
-import math
-import pandas as pd
 import streamlit as st
+from datetime import datetime, timedelta
+from collections import defaultdict
 
-"""
-# Welcome to Streamlit!
+def calculate_completion_date(start_date, calendar_days, winter_shutdown):
+    start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    completion_date = start_date
+    days_added = 0
+    days_per_month = defaultdict(int)
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
+    while days_added < calendar_days:
+        if winter_shutdown == "Yes":
+            if (completion_date.month < 12 or completion_date.day < 1) and (completion_date.month > 3 or completion_date.day > 31):
+                days_added += 1
+                days_per_month[completion_date.strftime("%Y-%m")] += 1
+        else:
+            days_added += 1
+            days_per_month[completion_date.strftime("%Y-%m")] += 1
+        completion_date += timedelta(days=1)
 
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
-
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+    # subtract one day because the day of start is considered a working day
+    completion_date -= timedelta(days=1)
 
 
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
+    return completion_date.strftime("%Y-%m-%d"), dict(days_per_month)
 
-    Point = namedtuple('Point', 'x y')
-    data = []
+st.title("Contract Completion Date Calculator")
 
-    points_per_turn = total_points / num_turns
+start_date = st.date_input("Contract Start Date",format="MM/DD/YYYY")
+calendar_days = st.number_input("Calendar Days",min_value=1,step=1)
+winter_shutdown = st.selectbox("Winter Shutdown", ["Yes", "No"])
 
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
-
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
+if st.button("Calculate Completion Date"):
+    completion_date, days_per_month = calculate_completion_date(str(start_date), calendar_days, winter_shutdown)
+    st.write("Completion Date:", completion_date)
+    st.write("Days per month:")
+    total_days = 0
+    for month, days in sorted(days_per_month.items()):
+        month_name = datetime.strptime(month, "%Y-%m").strftime("%B %Y")
+        total_days += days
+        st.write(f"{month_name}: {days} Days ({total_days} Days Total)")
