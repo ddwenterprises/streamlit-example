@@ -32,7 +32,7 @@ winter_shutdown = st.selectbox("Winter Shutdown", ["Yes", "No"])
 
 if st.button("Calculate Completion Date"):
     completion_date, days_per_month = calculate_completion_date(str(start_date), calendar_days, winter_shutdown)
-    st.write("The Contract Completion Date is **", completion_date,"**.")
+    st.write("The Contract Completion Date is <b>", completion_date,"</b>.", unsafe_allow_html=True)
     st.write("Days per month:")
     total_days = 0
     for month, days in sorted(days_per_month.items()):
