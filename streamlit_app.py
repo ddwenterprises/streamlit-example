@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 def calculate_completion_date(start_date, calendar_days, winter_shutdown):
-    start_date = datetime.strptime(start_date, "%m-%d-%Y")
+    start_date = datetime.strptime(start_date, "%Y-%m-%d")
     completion_date = start_date
     days_added = 0
     days_per_month = defaultdict(int)
@@ -32,7 +32,7 @@ winter_shutdown = st.selectbox("Winter Shutdown", ["Yes", "No"])
 
 if st.button("Calculate Completion Date"):
     completion_date, days_per_month = calculate_completion_date(str(start_date), calendar_days, winter_shutdown)
-    st.write("The Contract Completion Date is ", completion_date)
+    st.write("Completion Date:", completion_date)
     st.write("Days per month:")
     total_days = 0
     for month, days in sorted(days_per_month.items()):
